@@ -1,0 +1,85 @@
+name: Daily wildfire dashboard
+
+# Publishes the NEWEST committed real-data dashboard snapshot to GitHub Pages.
+#
+# The repo ships real snapshots under wildfire_output/<date>/ (heatmap HTML +
+# summary JSON + scored parquet), generated locally from the trained models
+# and live 2 km GEE pulls. This workflow picks the latest date directory,
+# stages it as the site index, and deploys to gh-pages. It reruns nightly so
+# the deployment stays fresh, and on push whenever a snapshot or the workflow
+# changes. The DATA refreshes when a new snapshot is committed — CI holds no
+# GEE credentials, so it redeploys real numbers rather than rendering
+# synthetic stand-ins.
+#
+# LIVE MODE: when a GEE_SA_JSON repo secret exists (a GCP service-account
+# key registered with Earth Engine), the workflow generates TODAY's dashboard
+# in-runner before staging — the staging step below always picks the newest
+# snapshot, so a fresh run wins and the committed snapshot is the automatic
+# fallback when the secret is absent or the GEE pull fails.
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - "wildfire_output/**"
+      - ".github/workflows/daily-dashboard.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-dashboard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GEE_SA_JSON: ${{ secrets.GEE_SA_JSON }}
+      GEE_PROJECT: wildfire-claude
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python (live mode)
+        if: env.GEE_SA_JSON != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate today's dashboard from live GEE data
+        if: env.GEE_SA_JSON != ''
+        continue-on-error: true  # GEE hiccup -> fall back to committed snapshot
+        run: |
+          # Minimal deps for the ignition path (torch/U-Net spread is skipped
+          # in CI via --ignition-only to keep the install light).
+          pip install --quiet earthengine-api xgboost pandas pyarrow folium numpy
+          python -m wildfire.dashboard --date "$(date -u +%Y-%m-%d)" --ignition-only
+
+      - name: Stage site/
+        run: |
+          mkdir -p site
+          # Newest committed snapshot: date-named dirs sort chronologically.
+          LATEST=$(find wildfire_output -mindepth 2 -maxdepth 2 -name 'heatmap_*.html' | sort | tail -n 1)
+          if [ -z "$LATEST" ]; then
+            echo "No committed dashboard snapshot found" >&2
+            exit 1
+          fi
+          SNAP_DIR=$(dirname "$LATEST")
+          DATE=$(basename "$SNAP_DIR")
+          echo "Deploying snapshot: $DATE"
+          cp "$SNAP_DIR/heatmap_$DATE.html" site/index.html
+          cp "$SNAP_DIR/heatmap_$DATE.html" "site/heatmap_$DATE.html"
+          [ -f "$SNAP_DIR/summary_$DATE.json" ] && cp "$SNAP_DIR/summary_$DATE.json" site/
+          # Light fingerprint for verification
+          ls -la site/
+          echo "Page size: $(wc -c < site/index.html) bytes"
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          keep_files: false
+          commit_message: "ci: deploy latest real-data dashboard snapshot"

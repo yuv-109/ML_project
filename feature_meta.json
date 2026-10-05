@@ -1,0 +1,171 @@
+{
+  "feature_columns": [
+    "temp_c",
+    "dewpoint_c",
+    "rh_pct",
+    "vpd_kpa",
+    "wind_speed_ms",
+    "wind_dir_deg",
+    "soil_moist_surf",
+    "soil_moist_root",
+    "kbdi_index",
+    "ndvi",
+    "elevation_m",
+    "slope_deg",
+    "aspect_deg",
+    "month",
+    "day_of_year"
+  ],
+  "operational_threshold": 0.19171231985092163,
+  "threshold_strategy": "f1",
+  "threshold_tuned_on": "validation",
+  "decision_threshold": 0.6,
+  "trained_on": "synthetic",
+  "data": {
+    "train_years": [
+      2022
+    ],
+    "val_years": [
+      2022
+    ],
+    "test_years": [
+      2023
+    ],
+    "refit_all": false,
+    "production_years": [
+      2022
+    ]
+  },
+  "train_year": "2022",
+  "test_year": 2023,
+  "metrics": {
+    "val": {
+      "roc_auc": 0.999981409050932,
+      "average_precision": 0.9977231789061904,
+      "threshold": 0.19171231985092163,
+      "confusion_matrix": [
+        [
+          19978,
+          1
+        ],
+        [
+          2,
+          138
+        ]
+      ],
+      "classification_report": {
+        "no_fire": {
+          "precision": 0.9998998998998999,
+          "recall": 0.999949947444817,
+          "f1-score": 0.9999249230461222,
+          "support": 19979.0
+        },
+        "fire": {
+          "precision": 0.9928057553956835,
+          "recall": 0.9857142857142858,
+          "f1-score": 0.989247311827957,
+          "support": 140.0
+        },
+        "accuracy": 0.9998508872210349,
+        "macro avg": {
+          "precision": 0.9963528276477918,
+          "recall": 0.9928321165795514,
+          "f1-score": 0.9945861174370396,
+          "support": 20119.0
+        },
+        "weighted avg": {
+          "precision": 0.9998505346118344,
+          "recall": 0.9998508872210349,
+          "f1-score": 0.9998506218596547,
+          "support": 20119.0
+        }
+      },
+      "n_rows": 20119,
+      "positive_rate": 0.006958596351707341,
+      "threshold_tuning": {
+        "f1": {
+          "threshold": 0.19171231985092163,
+          "f1": 0.989247311827457,
+          "precision": 0.9928057553956835,
+          "recall": 0.9857142857142858
+        },
+        "youden": {
+          "threshold": 0.001365316566079855,
+          "tpr": 1.0,
+          "fpr": 0.001651734321037089
+        },
+        "precision@0.10": {
+          "threshold": 0.9999994039535522,
+          "precision": 1.0,
+          "recall": 0.02142857142857143
+        },
+        "chosen_strategy": "f1",
+        "chosen_threshold": 0.19171231985092163
+      }
+    },
+    "test": {
+      "roc_auc": 0.999991830471191,
+      "average_precision": 0.9988448950879496,
+      "threshold": 0.19171231985092163,
+      "confusion_matrix": [
+        [
+          99063,
+          10
+        ],
+        [
+          9,
+          652
+        ]
+      ],
+      "classification_report": {
+        "no_fire": {
+          "precision": 0.9999091569767442,
+          "recall": 0.9998990643263048,
+          "f1-score": 0.9999041106260567,
+          "support": 99073.0
+        },
+        "fire": {
+          "precision": 0.9848942598187311,
+          "recall": 0.9863842662632375,
+          "f1-score": 0.9856386999244142,
+          "support": 661.0
+        },
+        "accuracy": 0.9998094932520505,
+        "macro avg": {
+          "precision": 0.9924017083977377,
+          "recall": 0.9931416652947711,
+          "f1-score": 0.9927714052752354,
+          "support": 99734.0
+        },
+        "weighted avg": {
+          "precision": 0.9998096438014835,
+          "recall": 0.9998094932520505,
+          "f1-score": 0.9998095647693399,
+          "support": 99734.0
+        }
+      },
+      "n_rows": 99734,
+      "positive_rate": 0.006627629494455251
+    },
+    "operational_threshold": 0.19171231985092163,
+    "roc_auc": 0.999991830471191,
+    "average_precision": 0.9988448950879496
+  },
+  "feature_importance": {
+    "wind_speed_ms": 0.7037172317504883,
+    "kbdi_index": 0.15638406574726105,
+    "vpd_kpa": 0.11550123244524002,
+    "rh_pct": 0.017344292253255844,
+    "ndvi": 0.001843755249865353,
+    "soil_moist_surf": 0.0015535270795226097,
+    "soil_moist_root": 0.0009753605118021369,
+    "temp_c": 0.0009075354319065809,
+    "dewpoint_c": 0.0007623040582984686,
+    "slope_deg": 0.00033739267382770777,
+    "wind_dir_deg": 0.000250626151682809,
+    "aspect_deg": 0.00021011164062656462,
+    "day_of_year": 0.00015866509056650102,
+    "elevation_m": 5.393939864006825e-05,
+    "month": 0.0
+  }
+}
